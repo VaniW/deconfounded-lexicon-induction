@@ -11,7 +11,7 @@ from collections import Counter
 measures = ['mean_revenue', 'median_revenue']
 measure = measures[1]
 columns = ['stemmed', 'stopped', 'lower', 'no_punct', 'tokens']
-col = columns[0]
+col = columns[1]
 times = 10
 top = 30
 
@@ -85,7 +85,7 @@ for i in range(times):
 	for j in range(top):
 		if score_list[j][0] in scores_tot:
 			val = scores_tot[score_list[j][0]]
-			val_new = (score_list[j][1]+val)/2
+			val_new = (score_list[j][1]+val)
 			scores_tot[score_list[j][0]] = val_new
 		else:
 			scores_tot[score_list[j][0]] = score_list[j][1]
@@ -93,4 +93,6 @@ for i in range(times):
 	# nur zum Testen
 	print_test()
 
+for k in scores_tot:
+	scores_tot[k] = scores_tot[k]/times
 print(scores_tot)
