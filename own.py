@@ -8,89 +8,89 @@ from bs4 import BeautifulSoup
 import nltk
 from collections import Counter
 
-csv_path = r'../../data/data.csv'
+measures = ['mean_revenue', 'median_revenue']
+measure = measures[1]
+columns = ['stemmed', 'stopped', 'lower', 'no_punct', 'tokens']
+col = columns[0]
+times = 10
+top = 30
 
 def build_vocab(text, n=1000):
 	all_words = [w for s in text for w in s]
 	c = Counter(all_words)
 	return [w for w, _ in c.most_common(n)]
 
+def print_test():
+	'''print('Evaluating vocab...')
+		# Now evaluate 2 vocabs, and ensure that the larger
+		#  vocab is more informative.
+		full_scores = selection.evaluate_vocab(
+			vocab=vocab,
+			df=df,
+			name_to_type=n2t)
+		partial_scores = selection.evaluate_vocab(
+			vocab=[vocab[-1]],
+			df=df,
+			name_to_type=n2t)
+
+		print(full_scores[measure])
+		print(partial_scores[measure])
+
+		assert full_scores[measure] > partial_scores[measure]
+
+
+		# And just for good measure have a continuous outcome.
+		partial_scores = selection.evaluate_vocab(
+			vocab=[],
+			df=df,
+			name_to_type=n2t)
+
+
+		print('Tests passed!')'''
+
 print('Reading data...')
-df = pd.read_pickle('../../data/data.pkl').head(30)
+df = pd.read_pickle('../../data/preprocessed_p3.pkl')
 
-df['mean_revenue'] = (df['mean_revenue']-df['mean_revenue'].min())/(df['mean_revenue'].max()-df['mean_revenue'].min())
+df['description'] = df[col].apply(lambda x: ' '.join(x))
 
-text = []
-description_wo_html = []
-for index, row in df.iterrows():
-	description = row['description']
-	wo_html = BeautifulSoup(description, "lxml").text
-	description_wo_html.append(wo_html)
-	text += [nltk.word_tokenize(wo_html.lower())]
-
-# generelles Preprocessing
-
-df['description'] = description_wo_html
-
-#print(df['mean_revenue'])
 #sys.exit()
-#df.to_csv(csv_path, sep='\t')
 
 # Use a variety of variables (categorical and continuous) 
 #  to score a vocab.
 print('Scoring vocab...')
 
-vocab = build_vocab(text)
+vocab = build_vocab(df[col]) # todo einige stoppwörter hinzufügen beim etc., ist stemmed das richtige??
 
 n2t = {
 		'description': 'input',
 		'brand': 'control',
-		'mean_revenue': 'predict',
+		measure: 'predict',
 		'price': 'control',
-}	
+}
 
-# Run the residualization model through its paces...
-scores = selection.score_vocab(
-	vocab=vocab,
-	df=df,
-	name_to_type=n2t,
-	scoring_model='residualization',
- 	batch_size=2,
- 	train_steps=500)
+scores_tot = {}
 
-# And then the adversarial one...
-scores = selection.score_vocab(
-	vocab=vocab,
-	df=df,
-	name_to_type=n2t,
-	scoring_model='adversarial',
- 	batch_size=2,
- 	train_steps=500)
+for i in range(times):
+	# run the adversarial one...
+	scores = selection.score_vocab(
+		vocab=vocab,
+		df=df,
+		name_to_type=n2t,
+		scoring_model='adversarial',
+		batch_size=2,
+		train_steps=500)
 
-print('a')
-print(scores)
-print('b')
+	print(f"Scores für {i}")
+	score_list = scores[measure]['N/A']
+	for j in range(top):
+		if score_list[j][0] in scores_tot:
+			val = scores_tot[score_list[j][0]]
+			val_new = (score_list[j][1]+val)/2
+			scores_tot[score_list[j][0]] = val_new
+		else:
+			scores_tot[score_list[j][0]] = score_list[j][1]
 
-print('Evaluating vocab...')
-# Now evaluate 2 vocabs, and ensure that the larger
-#  vocab is more informative.
-full_scores = selection.evaluate_vocab(
-	vocab=vocab[:100],
-	df=df,
-	name_to_type=n2t)
-partial_scores = selection.evaluate_vocab(
-	vocab=[vocab[-1]],
-	df=df,
-	name_to_type=n2t)
+	# nur zum Testen
+	print_test()
 
-assert full_scores['mean_revenue'] > partial_scores['mean_revenue']
-
-
-# And just for good measure have a continuous outcome.
-partial_scores = selection.evaluate_vocab(
-	vocab=[],
-	df=df,
-	name_to_type=n2t)
-
-
-print('Tests passed!')
+print(scores_tot)
