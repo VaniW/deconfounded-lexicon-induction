@@ -60,8 +60,10 @@ class VocabScoringModel(nn.Module):
             in_dim = input_size
             out_dim = len(info['vocab'])
             for _ in range(num_layers - 1):
+                # frage2:  hier
                 layers.append(nn.Linear(in_dim, hidden_size, bias=False))
                 in_dim = hidden_size
+            # frage2: hier
             layers.append(nn.Linear(in_dim, out_dim, bias=False))
             return nn.Sequential(*layers)
 
@@ -273,14 +275,14 @@ class AdversarialSelector(VocabScoringModel):
             input_size=hidden_size,
             output_info=self.confound_info,
             hidden_size=self.hidden_size,
-            num_layers=1)
+            num_layers=1) # num_layers 2
 
         # e => y_hat
         self.final_predictors, self.final_criterions = self.build_predictors(
             input_size=hidden_size,
             output_info=self.outcome_info,
             hidden_size=self.hidden_size,
-            num_layers=1)
+            num_layers=1) # num_layers 2
 
     def forward(self, batch):
         """ Forward pass.

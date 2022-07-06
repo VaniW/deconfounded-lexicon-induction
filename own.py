@@ -5,6 +5,7 @@ import pandas as pd
 import sys
 from bs4 import BeautifulSoup
 import csv
+import os
 
 import nltk
 from collections import Counter
@@ -48,62 +49,81 @@ df = pd.read_pickle('../../data/preprocessed_p3.pkl')
 measures = ['mean_revenue', 'median_revenue']
 measure = measures[1]
 columns = ['stemmed', 'stopped', 'lower', 'no_punct', 'tokens']
+confounds = [
+	#{'brand': 'control'},
+	#{'price': 'control'},
+	#{'category_id': 'control'},
+	#{'brand': 'control', 'price': 'control'},
+	#{'brand': 'control', 'category_id': 'control'},
+	#{'price': 'control', 'category_id': 'control'},
+	#{'brand': 'control', 'price': 'control'},
+	{'brand': 'control', 'price': 'control', 'category_id': 'control'},
+]
 col = columns[0]
 times = 20
 top = 50
 
-for col in columns:
-	for measure in measures:
-		df['description'] = df[col].apply(lambda x: ' '.join(x))
+for confound in confounds:
+	for col in columns:
+		for measure in measures:
+			df['description'] = df[col].apply(lambda x: ' '.join(x))
 
-		#sys.exit()
+			#sys.exit()
 
-		# Use a variety of variables (categorical and continuous)
-		#  to score a vocab.
-		print('Scoring vocab...')
+			# Use a variety of variables (categorical and continuous)
+			#  to score a vocab.
+			print('Scoring vocab...')
 
-		vocab = build_vocab(df[col]) # todo einige stoppwörter hinzufügen beim etc., ist stemmed das richtige??
+			vocab = build_vocab(df[col]) # todo einige stoppwörter hinzufügen beim etc., ist stemmed das richtige??
 
-		n2t = {
-				'description': 'input',
-				'brand': 'control',
-				measure: 'predict',
-				'price': 'control',
-		}
+			n2t = {
+					'description': 'input',
+					measure: 'predict'
+			}
 
-		scores_tot = {}
+			n2t = {**n2t, **confound}
 
-		for i in range(times):
-			# run the adversarial one...
-			scores = selection.score_vocab(
-				vocab=vocab,
-				df=df,
-				name_to_type=n2t,
-				scoring_model='adversarial',
-				batch_size=2,
-				train_steps=500)
+			scores_tot = {}
 
-			print(f"Scores für {i}")
-			score_list = scores[measure]['N/A']
-			for j in range(top):
-				if score_list[j][0] in scores_tot:
-					val = scores_tot[score_list[j][0]]
-					val_new = (score_list[j][1]+val)
-					scores_tot[score_list[j][0]] = val_new
-				else:
-					scores_tot[score_list[j][0]] = score_list[j][1]
+			for i in range(times):
+				# run the adversarial one...
+				scores = selection.score_vocab(
+					vocab=vocab,
+					df=df,
+					name_to_type=n2t,
+					scoring_model='adversarial',
+					batch_size=2,
+					train_steps=500)
 
-			# nur zum Testen
-			print_test()
+				print(f"Scores für {i}")
+				score_list = scores[measure]['N/A']
+				for j in range(top):
+					if score_list[j][0] in scores_tot:
+						val = scores_tot[score_list[j][0]]
+						val_new = (score_list[j][1]+val)
+						scores_tot[score_list[j][0]] = val_new
+					else:
+						scores_tot[score_list[j][0]] = score_list[j][1]
 
-		for k in scores_tot:
-			scores_tot[k] = scores_tot[k]/times
+				# nur zum Testen
+				print_test()
 
-		scores_tot = dict(sorted(scores_tot.items(), key=lambda item: item[1], reverse=True))
+			for k in scores_tot:
+				scores_tot[k] = scores_tot[k]/times
 
-		print(scores_tot)
-		file = 'csvs/'+col+'_'+measure+'.csv'
-		with open(file, 'w') as f:
-			f.write("%s; %s\n" % ('Wort', 'Durchschnittlicher Wert'))
-			for key in scores_tot.keys():
-				f.write("%s; %s\n" % (key, scores_tot[key]))
+			scores_tot = dict(sorted(scores_tot.items(), key=lambda item: item[1], reverse=True))
+
+			print(scores_tot)
+
+			path = 'csvs/'+measure+'/'+col
+
+			isExist = os.path.exists(path)
+
+			if not isExist:
+				os.makedirs(path)
+
+			file = path +'/'+ '_'.join(list(confound.keys())) +'.csv'
+			with open(file, 'w') as f:
+				f.write("%s; %s\n" % ('Wort', 'Durchschnittlicher Wert'))
+				for key in scores_tot.keys():
+					f.write("%s; %s\n" % (key, scores_tot[key]))
