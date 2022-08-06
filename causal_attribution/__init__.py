@@ -38,7 +38,6 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-
 def score_vocab(
     vocab,
     csv="", delimiter="",
@@ -80,6 +79,9 @@ def score_vocab(
         variable name => class name => [(feature name, score)] 
         Note that the lists are sorted in descending order.
     """
+    targets = []
+    preds = []
+
     if csv:
         df = pd.read_csv(csv, delimiter=delimiter).dropna()
     elif df is not None:
@@ -123,15 +125,34 @@ def score_vocab(
             batch = {k: v.cuda() for k, v in batch.items()}
             
         confound_preds, confound_loss, final_preds, final_loss = model(batch)
+        #temp.append(final_preds.detach().numpy())
         loss = confound_loss + final_loss  # TODO(rpryzant) weighting?
 
         loss.backward()
         optimizer.step()
         model.zero_grad()
 
+    # evaluate
+    for name, value in name_to_type.items():
+        if value == 'predict':
+            field = name
+
+    iterator_fn, var_info = get_iterator(
+        vocab, df, name_to_type,
+        batch_size=1,
+        max_seq_len=max_seq_len)
+    iterator = iterator_fn()
+    for i in range(1360):
+        try:
+            batch = next(iterator)
+        except StopIteration:
+            iterator = iterator_fn()
+        confound_preds, confound_loss, final_preds, final_loss = model(batch)
+        targets = targets + list(batch[field].detach().numpy())
+        preds = preds + list(final_preds[field].detach().numpy())
     features_scores = model.interpret()
 
-    return features_scores
+    return features_scores, targets, preds
 
 
 def evaluate_vocab(vocab,

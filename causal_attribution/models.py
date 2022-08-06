@@ -64,16 +64,20 @@ class VocabScoringModel(nn.Module):
                 layers.append(nn.Linear(in_dim, hidden_size, bias=False))
                 in_dim = hidden_size
             # frage2: hier
-            layers.append(nn.Linear(in_dim, out_dim, bias=False))
+            layers.append(nn.Linear(in_dim, out_dim, bias=False)) # lernt Gewichte
+            layers.append(nn.ReLU()) # act. function, bei Linear nix, schneidet negative Werte ab
             return nn.Sequential(*layers)
 
         out_preds = {}
         out_losses = {}
         for name, info in output_info.items():
             out_preds[name] = prediction_head(info)
+            # type ansehen - wenn nix in type - klassen
             if info['type'] == 'continuous':
+                print("Regression")
                 out_losses[name] = nn.MSELoss(reduction='mean') 
             else:
+                print("Klassifikation")
                 out_losses[name] = nn.CrossEntropyLoss(reduction='mean')
 
         return nn.ModuleDict(out_preds), nn.ModuleDict(out_losses)
@@ -269,6 +273,8 @@ class AdversarialSelector(VocabScoringModel):
         self.W_in = nn.Linear(
             len(self.input_info['vocab']), self.hidden_size, bias=False)
 
+        #self.lstm = nn.LSTM(self.hidden_size, self.lstm_hidden_size) # todo set lstm hidden size
+
         # e => C
         self.gradrev = ReversalLayer()
         self.confound_predictors, self.confound_criterions = self.build_predictors(
@@ -284,7 +290,7 @@ class AdversarialSelector(VocabScoringModel):
             hidden_size=self.hidden_size,
             num_layers=1) # num_layers 2
 
-    def forward(self, batch):
+    def forward(self, batch): # wird immer aufgerufen bei model()
         """ Forward pass.
 
         Args:
@@ -302,6 +308,7 @@ class AdversarialSelector(VocabScoringModel):
             len(self.input_info['vocab']), 
             self.use_counts, self.use_gpu)
         text_encoded = self.W_in(text_bow)
+        #text_encoded_lstm = self.lstm(text_encoded)
 
         # e => C_hat
         text_gradrev = self.gradrev(text_encoded)
@@ -318,7 +325,7 @@ class AdversarialSelector(VocabScoringModel):
 
         # e => y_hat
         final_preds, final_loss = self.predict(
-            input_vec=text_encoded,
+            input_vec=text_encoded,#_lstm,
             target_info=self.outcome_info,
             predictors=self.final_predictors,
             criterions=self.final_criterions,

@@ -33,16 +33,16 @@ n2t = {
 }	
 
 # Run the residualization model through its paces...
-scores = selection.score_vocab(
+'''scores = selection.score_vocab(
 	vocab=vocab,
 	csv="testdata/cfpb.1k.tsv", delimiter='\t',
 	name_to_type=n2t,
 	scoring_model='residualization',
  	batch_size=2,
- 	train_steps=500)
+ 	train_steps=500)'''
 
 # And then the adversarial one...
-scores = selection.score_vocab(
+scores, predictions = selection.score_vocab(
 	vocab=vocab,
 	csv="testdata/cfpb.1k.tsv", delimiter='\t',
 	name_to_type=n2t,

@@ -44,19 +44,18 @@ def print_test():
 		print('Tests passed!')'''
 
 print('Reading data...')
-df = pd.read_pickle('../../data/preprocessed_p3.pkl')
+df = pd.read_pickle('../../data/preprocessed_classified.pkl')
 
 measures = ['mean_revenue', 'median_revenue']
-measure = measures[1]
 columns = ['stemmed', 'stopped', 'lower', 'no_punct', 'tokens']
 confounds = [
-	#{'brand': 'control'},
-	#{'price': 'control'},
-	#{'category_id': 'control'},
-	#{'brand': 'control', 'price': 'control'},
-	#{'brand': 'control', 'category_id': 'control'},
-	#{'price': 'control', 'category_id': 'control'},
-	#{'brand': 'control', 'price': 'control'},
+	{'brand': 'control'},
+	{'price': 'control'},
+	{'category_id': 'control'},
+	{'brand': 'control', 'price': 'control'},
+	{'brand': 'control', 'category_id': 'control'},
+	{'price': 'control', 'category_id': 'control'},
+	{'brand': 'control', 'price': 'control'},
 	{'brand': 'control', 'price': 'control', 'category_id': 'control'},
 ]
 col = columns[0]
@@ -66,6 +65,7 @@ top = 50
 for confound in confounds:
 	for col in columns:
 		for measure in measures:
+			print(measure)
 			df['description'] = df[col].apply(lambda x: ' '.join(x))
 
 			#sys.exit()
@@ -87,13 +87,19 @@ for confound in confounds:
 
 			for i in range(times):
 				# run the adversarial one...
-				scores = selection.score_vocab(
+				scores, targets, preds = selection.score_vocab(
 					vocab=vocab,
 					df=df,
 					name_to_type=n2t,
 					scoring_model='adversarial',
-					batch_size=2,
-					train_steps=500)
+					batch_size=16,
+					train_steps=255,
+					max_seq_len=700)
+
+				full_scores = selection.evaluate_vocab(
+					vocab=vocab,
+					df=df,
+					name_to_type=n2t)
 
 				print(f"Scores für {i}")
 				score_list = scores[measure]['N/A']
