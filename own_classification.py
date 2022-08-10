@@ -6,9 +6,61 @@ import sys
 from bs4 import BeautifulSoup
 import csv
 import os
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.metrics import confusion_matrix
 
 import nltk
 from collections import Counter
+
+# source is AML lesson, LB02_NaiveBayes_template
+import itertools
+
+
+def plot_confusion_matrix(cm, classes,
+						  normalize=False,
+						  title='Confusion matrix',
+						  cmap=plt.cm.Blues):
+	"""
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting `normalize=True`.
+    """
+	fig = plt.figure()
+
+	if normalize:
+		cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+		cm = np.around(cm, decimals=3, out=None)
+
+	thresh = cm.max() / 2.
+
+	plt.imshow(cm, interpolation='nearest', cmap=cmap)
+
+	plt.title(title)
+	plt.colorbar()
+	tick_marks = np.arange(len(classes))
+	plt.xticks(tick_marks, classes, rotation=45)
+	plt.yticks(tick_marks, classes)
+
+	for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+		plt.text(j, i, cm[i, j],
+				 horizontalalignment="center",
+				 color="white" if cm[i, j] > thresh else "black")
+
+	fig.tight_layout()
+	plt.ylabel('Echtes Label')
+	plt.xlabel('Vorausgesagtes Label')
+
+	path = 'cms/' + measure + '/' + col
+
+	isExist = os.path.exists(path)
+
+	if not isExist:
+		os.makedirs(path)
+
+	file = path + '/' + '_'.join(list(confound.keys())) + '.jpg'
+	if os.path.exists(path) == False:
+		fig.savefig(file, bbox_inches='tight')
+	plt.close('all')
 
 def build_vocab(text, n=1000):
 	all_words = [w for s in text for w in s]
@@ -46,7 +98,6 @@ def print_test():
 print('Reading data...')
 df = pd.read_pickle('../../data/preprocessed_classified.pkl')
 
-measures = ['label_num','label']
 measures = ['label']
 columns = ['stemmed', 'stopped', 'lower', 'no_punct', 'tokens']
 confounds = [
@@ -67,8 +118,6 @@ for confound in confounds:
 		for measure in measures:
 			print(measure)
 			df['description'] = df[col].apply(lambda x: ' '.join(x))
-
-			#sys.exit()
 
 			# Use a variety of variables (categorical and continuous)
 			#  to score a vocab.
@@ -96,6 +145,9 @@ for confound in confounds:
 					train_steps=255,
 					max_seq_len=700)
 
+				for j, element in enumerate(preds):
+						preds[j] = np.argmax(element)
+
 				full_scores = selection.evaluate_vocab(
 					vocab=vocab,
 					df=df,
@@ -115,7 +167,20 @@ for confound in confounds:
 				# nur zum Testen
 				print_test()
 
+				if i == times - 1:
+					cm = confusion_matrix(targets, preds)
+					class_names = ['Top-Seller', 'Normal', 'Ladenhüter']
+
+					print(cm)
+					plot_confusion_matrix(cm, class_names,
+										  normalize=True,
+										  title='Normalized Confusion matrix',
+										  cmap=plt.cm.Blues)
+
+
 			for key, val in scores_tot.items():
+				if key == "N/A":
+					continue
 				for k in val:
 					scores_tot[key][k] = scores_tot[key][k]/times
 

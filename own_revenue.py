@@ -6,6 +6,7 @@ import sys
 from bs4 import BeautifulSoup
 import csv
 import os
+from sklearn.metrics import mean_absolute_error, mean_squared_error, mean_squared_log_error, mean_absolute_percentage_error
 
 import nltk
 from collections import Counter
@@ -96,6 +97,9 @@ for confound in confounds:
 					train_steps=255,
 					max_seq_len=700)
 
+				for j, element in enumerate(preds):
+					preds[j] = element[0]
+
 				full_scores = selection.evaluate_vocab(
 					vocab=vocab,
 					df=df,
@@ -113,6 +117,21 @@ for confound in confounds:
 
 				# nur zum Testen
 				print_test()
+
+				#if i == times - 1:
+				path = 'texts/' + measure + '/' + col
+
+				isExist = os.path.exists(path)
+
+				if not isExist:
+					os.makedirs(path)
+				file = path + '/' + '_'.join(list(confound.keys())) + '.txt'
+
+				with open(file, 'w') as f:
+					f.writelines("MAE: "+ str(mean_absolute_error(targets, preds)))
+					f.writelines(" MSE: "+ str(mean_squared_error(targets, preds)))
+					f.writelines(" MSLE: "+ str(mean_squared_log_error(targets, preds)))
+					f.writelines(" MAPE: "+ str(mean_absolute_percentage_error(targets, preds)))
 
 			for k in scores_tot:
 				scores_tot[k] = scores_tot[k]/times
