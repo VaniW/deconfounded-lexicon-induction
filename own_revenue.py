@@ -11,7 +11,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, mean_square
 import nltk
 from collections import Counter
 
-def build_vocab(text, n=1000):
+def build_vocab(text, n=2000):
 	all_words = [w for s in text for w in s]
 	c = Counter(all_words)
 	return [w for w, _ in c.most_common(n)]
@@ -118,20 +118,20 @@ for confound in confounds:
 				# nur zum Testen
 				print_test()
 
-				#if i == times - 1:
-				path = 'texts/' + measure + '/' + col
+				if i == times - 1:
+					path = 'texts/' + measure + '/' + col
 
-				isExist = os.path.exists(path)
+					isExist = os.path.exists(path)
 
-				if not isExist:
-					os.makedirs(path)
-				file = path + '/' + '_'.join(list(confound.keys())) + '.txt'
+					if not isExist:
+						os.makedirs(path)
+					file = path + '/' + '_'.join(list(confound.keys())) + '.txt'
 
-				with open(file, 'w') as f:
-					f.writelines("MAE: "+ str(mean_absolute_error(targets, preds)))
-					f.writelines(" MSE: "+ str(mean_squared_error(targets, preds)))
-					f.writelines(" MSLE: "+ str(mean_squared_log_error(targets, preds)))
-					f.writelines(" MAPE: "+ str(mean_absolute_percentage_error(targets, preds)))
+					with open(file, 'w') as f:
+						f.writelines("MAE: "+ str(mean_absolute_error(targets, preds)))
+						f.writelines(" MSE: "+ str(mean_squared_error(targets, preds)))
+						f.writelines(" MSLE: "+ str(mean_squared_log_error(targets, preds)))
+						f.writelines(" MAPE: "+ str(mean_absolute_percentage_error(targets, preds)))
 
 			for k in scores_tot:
 				scores_tot[k] = scores_tot[k]/times

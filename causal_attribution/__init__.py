@@ -125,7 +125,6 @@ def score_vocab(
             batch = {k: v.cuda() for k, v in batch.items()}
             
         confound_preds, confound_loss, final_preds, final_loss = model(batch)
-        #temp.append(final_preds.detach().numpy())
         loss = confound_loss + final_loss  # TODO(rpryzant) weighting?
 
         loss.backward()
@@ -142,7 +141,7 @@ def score_vocab(
         batch_size=1,
         max_seq_len=max_seq_len)
     iterator = iterator_fn()
-    for i in range(1360):
+    for i in range(len(df)):
         try:
             batch = next(iterator)
         except StopIteration:
