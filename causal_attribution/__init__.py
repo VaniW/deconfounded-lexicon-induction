@@ -46,7 +46,8 @@ def score_vocab(
     scoring_model="residualization",
     batch_size=128, train_steps=5000, lr=0.001,  hidden_size=32, max_seq_len=128,
     status_bar=False,
-    use_gpu=False):
+    use_gpu=False,
+    use_lstm=False, hidden_size_lstm=32):
     """
     Score words in their ability to explain outcome(s), regaurdless of confound(s).
 
@@ -71,9 +72,11 @@ def score_vocab(
         train_steps: int. How long to train the scoring model for.
         lr: float. Learning rate for the scoring model.
         hidden_size: int. Dimension of scoring model vectors.
+        hidden_size_lstm: int. Dimension of scoring model vectors lstm.
         max_seq_len: int. Maximum length of text sequences.
         status_bar: bool. Whether to show status bars during model training.
         use_gpu: bool. Whether to use a gpu for model training.
+        use_lstm: bool. Whether to use a lstm for model training.
 
     Returns:
         variable name => class name => [(feature name, score)] 
@@ -85,9 +88,11 @@ def score_vocab(
     if csv:
         df = pd.read_csv(csv, delimiter=delimiter).dropna()
     elif df is not None:
-        df = df.dropna()
+        df = df.dropna(subset=['mean_revenue', 'description']) # die Date-Spalten sind oft nan
     else:
-        raise Exception('Must provide a csv or df.')        
+        raise Exception('Must provide a csv or df.')
+
+    whole_df = df
 
     assert 'UNK' not in vocab, 'ERROR: UNK is not allowed as vocab element.'
     assert 'PAD' not in vocab, 'ERROR: PAD is not allowed as vocab element.'
@@ -108,6 +113,8 @@ def score_vocab(
         var_info=var_info,
         use_counts=False,
         hidden_size=hidden_size,
+        use_lstm=use_lstm,
+        hidden_size_lstm=hidden_size_lstm,
         use_gpu=use_gpu)
     if use_gpu:
         model = model.cuda()
@@ -131,17 +138,30 @@ def score_vocab(
         optimizer.step()
         model.zero_grad()
 
+    features_scores = model.interpret()
+
     # evaluate
     for name, value in name_to_type.items():
         if value == 'predict':
             field = name
 
     iterator_fn, var_info = get_iterator(
-        vocab, df, name_to_type,
+        vocab, whole_df, name_to_type,
         batch_size=1,
         max_seq_len=max_seq_len)
+
+    model = model_fn(
+        var_info=var_info,
+        use_counts=False,
+        hidden_size=hidden_size,
+        use_lstm=use_lstm,
+        hidden_size_lstm=hidden_size_lstm,
+        use_gpu=use_gpu)
+
+    optimizer = optim.Adam(model.parameters(), lr=lr)
     iterator = iterator_fn()
-    for i in range(len(df)):
+
+    for i in range(len(whole_df)):
         try:
             batch = next(iterator)
         except StopIteration:
@@ -149,7 +169,12 @@ def score_vocab(
         confound_preds, confound_loss, final_preds, final_loss = model(batch)
         targets = targets + list(batch[field].detach().numpy())
         preds = preds + list(final_preds[field].detach().numpy())
-    features_scores = model.interpret()
+
+        loss = confound_loss + final_loss
+
+        loss.backward()
+        optimizer.step()
+        model.zero_grad()
 
     return features_scores, targets, preds
 

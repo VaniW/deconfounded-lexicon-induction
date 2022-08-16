@@ -49,7 +49,7 @@ def plot_confusion_matrix(cm, classes,
     plt.ylabel('Echtes Label')
     plt.xlabel('Vorausgesagtes Label')
 
-    path = 'cms/' + measure + '/' + col
+    path = 'cms/' + measure + '_2/' + col
 
     isExist = os.path.exists(path)
 
@@ -99,6 +99,8 @@ def print_test():
 print('Reading data...')
 df = pd.read_pickle('../../data/preprocessed_classified.pkl')
 
+df = df[df['label'] != 'normal']
+
 # für ohne confounds
 df['ohne_confounds'] = 0
 
@@ -118,12 +120,11 @@ times = 1#20
 top = 50
 
 amount_top = df.groupby('label').count()['id']['top_seller']
-amount_normal = df.groupby('label').count()['id']['normal']
 amount_bottom = df.groupby('label').count()['id']['non_seller']
 
-df_acc = pd.DataFrame([], columns=['metric', 'confounds', 'preprocessing', 'acc', 'bottom', 'normal', 'top'])
+df_acc = pd.DataFrame([], columns=['metric', 'confounds', 'preprocessing', 'acc', 'bottom', 'top'])
 
-for use_lstm in [True]:
+for use_lstm in [False]:
     for confound in confounds:
         for col in columns:
             for measure in measures:
@@ -132,7 +133,7 @@ for use_lstm in [True]:
                 if len(confound) > 0:
                     confound_names = str(' '.join(list(confound.keys())))
 
-                path = 'cms/' + measure + '/' + col
+                path = 'cms/' + measure + '_2/' + col
                 file = path + '/' + confound_names + '.jpg'
                 #if os.path.isfile(file):
                 #    continue
@@ -200,7 +201,7 @@ for use_lstm in [True]:
 
 
                         cm = confusion_matrix(targets, preds)
-                        class_names = ['Ladenhüter', 'Normal', 'Top-Seller']
+                        class_names = ['Ladenhüter', 'Top-Seller']
 
                         print(cm)
                         plot_confusion_matrix(cm, class_names,
@@ -211,8 +212,7 @@ for use_lstm in [True]:
                         df_acc.loc[len(df_acc.index)] = [measure, confound_names , col,
                                                                 accuracy_score(targets, preds),
                                                                 np.diag(cm)[0]/amount_bottom,
-                                                                np.diag(cm)[1]/amount_normal,
-                                                                np.diag(cm)[2]/amount_top
+                                                                np.diag(cm)[1]/amount_top
                                                          ]
 
 
@@ -226,7 +226,7 @@ for use_lstm in [True]:
 
                     #print(scores_tot[key])
 
-                    path = 'csvs/' + measure + '/' + col
+                    path = 'csvs/' + measure + '_2/' + col
 
                     if use_lstm:
                         path = path + 'lstm/'
@@ -242,4 +242,4 @@ for use_lstm in [True]:
                         for k in scores_tot[key].keys():
                             f.write("%s; %s\n" % (k, scores_tot[key][k]))
 
-df_acc.to_pickle("acc.pkl")
+df_acc.to_pickle("acc2.pkl")

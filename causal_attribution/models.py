@@ -12,7 +12,7 @@ class VocabScoringModel(nn.Module):
     """
     Base class for scoring models.
     """
-    def __init__(self, var_info, use_counts, hidden_size, use_gpu):
+    def __init__(self, var_info, use_counts, hidden_size, use_gpu, use_lstm, hidden_size_lstm):
         """Initialize a DirectedResidualization model.
 
         Args:
@@ -21,17 +21,23 @@ class VocabScoringModel(nn.Module):
             use_counts: bool. Whether to use counts of features in sparse
                 representations (false = binary indicators).
             hidden_size: int. Size of hidden vectors.
+            hidden_size_lstm: int. Size of hidden vectors for lstm.
             use_gpu: bool. Whether to use gpu.
+            use_lstm: bool. Whether to use lstm.
         """
         super(VocabScoringModel, self).__init__()
 
         self.use_gpu = use_gpu
+        self.use_lstm = use_lstm
+
+        self.lstm = None
 
         # Everything needs to be in order so that we know what variable 
         # each parameter corresponds too.
         self.ordered_names = sorted(list(var_info.keys()))
 
         self.hidden_size = hidden_size
+        self.hidden_size_lstm = hidden_size_lstm
         self.use_counts = use_counts
 
         self.input_info = next(
@@ -60,10 +66,8 @@ class VocabScoringModel(nn.Module):
             in_dim = input_size
             out_dim = len(info['vocab'])
             for _ in range(num_layers - 1):
-                # frage2:  hier
                 layers.append(nn.Linear(in_dim, hidden_size, bias=False))
                 in_dim = hidden_size
-            # frage2: hier
             layers.append(nn.Linear(in_dim, out_dim, bias=False)) # lernt Gewichte
             layers.append(nn.ReLU()) # act. function, bei Linear nix, schneidet negative Werte ab
             return nn.Sequential(*layers)
@@ -158,7 +162,7 @@ class DirectedResidualization(VocabScoringModel):
     We then trace paths through the parameters of the model to 
         determing text feature importance.
     """
-    def __init__(self, var_info, use_counts, hidden_size, use_gpu):
+    def __init__(self, var_info, use_counts, hidden_size, use_gpu, use_lstm, hidden_size_lstm):
         """Initialize a DirectedResidualization model.
 
         Args:
@@ -169,7 +173,7 @@ class DirectedResidualization(VocabScoringModel):
             hidden_size: int. Size of hidden vectors.
         """
         super(DirectedResidualization, self).__init__(
-            var_info, use_counts, hidden_size, use_gpu)
+            var_info, use_counts, hidden_size, use_gpu, use_lstm, hidden_size_lstm)
 
         # Text => T
         self.W_in = nn.Linear(
@@ -256,7 +260,7 @@ class AdversarialSelector(VocabScoringModel):
     We then trace paths through the parameters of the model to 
         determing text feature importance.
     """
-    def __init__(self, var_info, use_counts, hidden_size, use_gpu):
+    def __init__(self, var_info, use_counts, hidden_size, use_gpu, use_lstm, hidden_size_lstm):
         """Initialize a DirectedResidualization model.
 
         Args:
@@ -265,15 +269,18 @@ class AdversarialSelector(VocabScoringModel):
             use_counts: bool. Whether to use counts of features in sparse
                 representations (false = binary indicators).
             hidden_size: int. Size of hidden vectors.
+            hidden_size_lstm: int. Size of hidden vectors for lstm.
+            use_lstm: Bool. Whether to use lstm
         """
         super(AdversarialSelector, self).__init__(
-            var_info, use_counts, hidden_size, use_gpu)
+            var_info, use_counts, hidden_size, use_gpu, use_lstm, hidden_size_lstm)
 
         # Text => e
         self.W_in = nn.Linear(
             len(self.input_info['vocab']), self.hidden_size, bias=False)
 
-        #self.lstm = nn.LSTM(self.hidden_size, self.lstm_hidden_size) # todo set lstm hidden size
+        if use_lstm:
+            self.lstm = nn.LSTM(input_size=self.hidden_size, hidden_size=self.hidden_size_lstm)
 
         # e => C
         self.gradrev = ReversalLayer()
@@ -308,24 +315,34 @@ class AdversarialSelector(VocabScoringModel):
             len(self.input_info['vocab']), 
             self.use_counts, self.use_gpu)
         text_encoded = self.W_in(text_bow)
-        #text_encoded_lstm = self.lstm(text_encoded)
+        text_encoded_lstm = None
+        if self.lstm:
+            temp = text_encoded.view(1, len(batch['description']),text_encoded.shape[1])
+            text_encoded_lstm = self.lstm(temp)[0]
 
+        # um ohne Confounds zu erlauben
         # e => C_hat
-        text_gradrev = self.gradrev(text_encoded)
-        confound_input = glue_dense_vectors([
-            (tensor, self.confound_info[name])
-            for name, tensor in batch.items() if name in self.confound_info], 
-            self.use_gpu)
-        confound_preds, confound_loss = self.predict(
-            input_vec=text_gradrev,
-            target_info=self.confound_info,
-            predictors=self.confound_predictors,
-            criterions=self.confound_criterions,
-            data=batch)
+        if len(self.confound_info) > 0:
+            text_gradrev = self.gradrev(text_encoded)
+            confound_input = glue_dense_vectors([
+                (tensor, self.confound_info[name])
+                for name, tensor in batch.items() if name in self.confound_info],
+                self.use_gpu)
 
+            confound_preds, confound_loss = self.predict(
+                input_vec=text_gradrev,
+                target_info=self.confound_info,
+                predictors=self.confound_predictors,
+                criterions=self.confound_criterions,
+                data=batch)
+        else:
+            confound_preds = 0
+            confound_loss = 0
+
+        used_text_encoded=text_encoded_lstm if self.lstm else text_encoded
         # e => y_hat
         final_preds, final_loss = self.predict(
-            input_vec=text_encoded,#_lstm,
+            input_vec=used_text_encoded,
             target_info=self.outcome_info,
             predictors=self.final_predictors,
             criterions=self.final_criterions,
