@@ -124,122 +124,118 @@ amount_bottom = df.groupby('label').count()['id']['non_seller']
 
 df_acc = pd.DataFrame([], columns=['metric', 'confounds', 'preprocessing', 'acc', 'bottom', 'top'])
 
-for use_lstm in [False]:
-    for confound in confounds:
-        for col in columns:
-            for measure in measures:
+for confound in confounds:
+    for col in columns:
+        for measure in measures:
 
-                confound_names = "ohne_confound"
-                if len(confound) > 0:
-                    confound_names = str(' '.join(list(confound.keys())))
+            confound_names = "ohne_confound"
+            if len(confound) > 0:
+                confound_names = str(' '.join(list(confound.keys())))
 
-                path = 'cms/' + measure + '_2/' + col
-                file = path + '/' + confound_names + '.jpg'
-                #if os.path.isfile(file):
-                #    continue
+            path = 'cms/' + measure + '_2/' + col
 
-                print(measure)
-                print(col)
-                print(confound_names)
+            file = path + '/' + confound_names + '.jpg'
+            #if os.path.isfile(file):
+            #    continue
 
-                df['description'] = df[col].apply(lambda x: ' '.join(x))
+            print(measure)
+            print(col)
+            print(confound_names)
 
-                # Use a variety of variables (categorical and continuous)
-                #  to score a vocab.
-                print('Scoring vocab...')
+            df['description'] = df[col].apply(lambda x: ' '.join(x))
 
-                vocab = build_vocab(df[col])
+            # Use a variety of variables (categorical and continuous)
+            #  to score a vocab.
+            print('Scoring vocab...')
 
-                n2t = {
-                    'description': 'input',
-                    measure: 'predict'
-                }
+            vocab = build_vocab(df[col])
 
-                if len(confound) > 0:
-                    n2t = {**n2t, **confound}
+            n2t = {
+                'description': 'input',
+                measure: 'predict'
+            }
 
-                scores_tot = {}
+            if len(confound) > 0:
+                n2t = {**n2t, **confound}
 
-                for i in range(times):
-                    # run the adversarial one...
-                    scores, targets, preds = selection.score_vocab(
-                        vocab=vocab,
-                        df=df,
-                        name_to_type=n2t,
-                        scoring_model='adversarial',
-                        batch_size=16,
-                        train_steps=255,
-                        max_seq_len=700,
-                        use_lstm=use_lstm)
+            scores_tot = {}
 
-                    print(f"Scores für {i}")
-                    for key, score_list in scores[measure].items():
-                        scores_tot[key] = {}
-                        for j in range(top):
-                            if score_list[j][0] in scores_tot[key]:
-                                val = scores_tot[key][score_list[j][0]]
-                                val_new = (score_list[j][1] + val)
-                                scores_tot[key][score_list[j][0]] = val_new
+            for i in range(times):
+                # run the adversarial one...
+                scores, targets, preds = selection.score_vocab(
+                    vocab=vocab,
+                    df=df,
+                    name_to_type=n2t,
+                    scoring_model='adversarial',
+                    batch_size=16,
+                    train_steps=255,
+                    max_seq_len=700)
+
+                print(f"Scores für {i}")
+                for key, score_list in scores[measure].items():
+                    scores_tot[key] = {}
+                    for j in range(top):
+                        if score_list[j][0] in scores_tot[key]:
+                            val = scores_tot[key][score_list[j][0]]
+                            val_new = (score_list[j][1] + val)
+                            scores_tot[key][score_list[j][0]] = val_new
+                        else:
+                            scores_tot[key][score_list[j][0]] = score_list[j][1]
+
+                # nur zum Testen
+                print_test()
+
+                if i == times - 1:
+
+                    for j, element in enumerate(preds):
+                        temp = np.argmax(element)
+                        if temp == 0:
+                            element[temp] = 0
+                            if np.argmax(element) == 0:
+                                preds[j] = 2
                             else:
-                                scores_tot[key][score_list[j][0]] = score_list[j][1]
-
-                    # nur zum Testen
-                    print_test()
-
-                    if i == times - 1:
-
-                        for j, element in enumerate(preds):
-                            temp = np.argmax(element)
-                            if temp == 0:
-                                element[temp] = 0
-                                if np.argmax(element) == 0:
-                                    preds[j] = 2
-                                else:
-                                    preds[j] = np.argmax(element)
-                            else:
-                                preds[j] = temp
+                                preds[j] = np.argmax(element)
+                        else:
+                            preds[j] = temp
 
 
-                        cm = confusion_matrix(targets, preds)
-                        class_names = ['Ladenhüter', 'Top-Seller']
+                    cm = confusion_matrix(targets, preds)
+                    class_names = ['Ladenhüter', 'Top-Seller']
 
-                        print(cm)
-                        plot_confusion_matrix(cm, class_names,
-                                              normalize=True,
-                                              title='Normalized Confusion matrix',
-                                              cmap=plt.cm.Blues)
+                    print(cm)
+                    plot_confusion_matrix(cm, class_names,
+                                          normalize=True,
+                                          title='Normalized Confusion matrix',
+                                          cmap=plt.cm.Blues)
 
-                        df_acc.loc[len(df_acc.index)] = [measure, confound_names , col,
-                                                                accuracy_score(targets, preds),
-                                                                np.diag(cm)[0]/amount_bottom,
-                                                                np.diag(cm)[1]/amount_top
-                                                         ]
+                    df_acc.loc[len(df_acc.index)] = [measure, confound_names , col,
+                                                            accuracy_score(targets, preds),
+                                                            np.diag(cm)[0]/amount_bottom,
+                                                            np.diag(cm)[1]/amount_top
+                                                     ]
 
 
-                for key, val in scores_tot.items():
-                    if key == "N/A":
-                        continue
-                    for k in val:
-                        scores_tot[key][k] = scores_tot[key][k] / times
+            for key, val in scores_tot.items():
+                if key == "N/A":
+                    continue
+                for k in val:
+                    scores_tot[key][k] = scores_tot[key][k] / times
 
-                    scores_tot[key] = dict(sorted(scores_tot[key].items(), key=lambda item: item[1], reverse=True))
+                scores_tot[key] = dict(sorted(scores_tot[key].items(), key=lambda item: item[1], reverse=True))
 
-                    #print(scores_tot[key])
+                #print(scores_tot[key])
 
-                    path = 'csvs/' + measure + '_2/' + col
+                path = 'csvs/' + measure + '_2/' + col
 
-                    if use_lstm:
-                        path = path + 'lstm/'
+                isExist = os.path.exists(path)
 
-                    isExist = os.path.exists(path)
+                if not isExist:
+                    os.makedirs(path)
 
-                    if not isExist:
-                        os.makedirs(path)
-
-                    file = path + '/' + confound_names + '_' + key + '.csv'
-                    with open(file, 'w') as f:
-                        f.write("%s; %s\n" % ('Wort', 'Durchschnittlicher Wert'))
-                        for k in scores_tot[key].keys():
-                            f.write("%s; %s\n" % (k, scores_tot[key][k]))
+                file = path + '/' + confound_names + '_' + key + '.csv'
+                with open(file, 'w') as f:
+                    f.write("%s; %s\n" % ('Wort', 'Durchschnittlicher Wert'))
+                    for k in scores_tot[key].keys():
+                        f.write("%s; %s\n" % (k, scores_tot[key][k]))
 
 df_acc.to_pickle("acc2.pkl")
