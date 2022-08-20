@@ -1,3 +1,11 @@
+# Abänderungen für Masterarbeit
+
+Eingebaute ReLU-Funktion
+
+Evaluierung eingebaut
+
+Dateien für die Durchführung/Analyse
+
 # Causal attribution 
 
 See the blog post! http://ai.stanford.edu/blog/text-causal-inference/
