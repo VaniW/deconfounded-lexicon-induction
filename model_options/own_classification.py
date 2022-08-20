@@ -49,7 +49,7 @@ def plot_confusion_matrix(cm, classes,
     plt.ylabel('Echtes Label')
     plt.xlabel('Vorausgesagtes Label')
 
-    path = 'cms/' + measure + '_2/' + col
+    path = 'cms/' + measure + '/' + col
 
     isExist = os.path.exists(path)
 
@@ -97,9 +97,7 @@ def print_test():
 
 
 print('Reading data...')
-df = pd.read_pickle('../../data/preprocessed_classified.pkl')
-
-df = df[df['label'] != 'normal']
+df = pd.read_pickle('../../../data/preprocessed_classified.pkl')
 
 # für ohne confounds
 df['ohne_confounds'] = 0
@@ -120,9 +118,10 @@ times = 5
 top = 50
 
 amount_top = df.groupby('label').count()['id']['top_seller']
+amount_normal = df.groupby('label').count()['id']['normal']
 amount_bottom = df.groupby('label').count()['id']['non_seller']
 
-df_acc = pd.DataFrame([], columns=['metric', 'confounds', 'preprocessing', 'acc', 'bottom', 'top'])
+df_acc = pd.DataFrame([], columns=['metric', 'confounds', 'preprocessing', 'acc', 'bottom', 'normal', 'top'])
 
 for confound in confounds:
     for col in columns:
@@ -132,8 +131,7 @@ for confound in confounds:
             if len(confound) > 0:
                 confound_names = str(' '.join(list(confound.keys())))
 
-            path = 'cms/' + measure + '_2/' + col
-
+            path = 'cms/' + measure + '/' + col
             file = path + '/' + confound_names + '.jpg'
             #if os.path.isfile(file):
             #    continue
@@ -200,7 +198,7 @@ for confound in confounds:
 
 
                     cm = confusion_matrix(targets, preds)
-                    class_names = ['Ladenhüter', 'Top-Seller']
+                    class_names = ['Ladenhüter', 'Normal', 'Top-Seller']
 
                     print(cm)
                     plot_confusion_matrix(cm, class_names,
@@ -211,7 +209,8 @@ for confound in confounds:
                     df_acc.loc[len(df_acc.index)] = [measure, confound_names , col,
                                                             accuracy_score(targets, preds),
                                                             np.diag(cm)[0]/amount_bottom,
-                                                            np.diag(cm)[1]/amount_top
+                                                            np.diag(cm)[1]/amount_normal,
+                                                            np.diag(cm)[2]/amount_top
                                                      ]
 
 
@@ -225,7 +224,7 @@ for confound in confounds:
 
                 #print(scores_tot[key])
 
-                path = 'csvs/' + measure + '_2/' + col
+                path = 'csvs/' + measure + '/' + col
 
                 isExist = os.path.exists(path)
 
@@ -238,4 +237,4 @@ for confound in confounds:
                     for k in scores_tot[key].keys():
                         f.write("%s; %s\n" % (k, scores_tot[key][k]))
 
-df_acc.to_pickle("acc2.pkl")
+df_acc.to_pickle("acc.pkl")

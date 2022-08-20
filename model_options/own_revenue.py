@@ -82,7 +82,7 @@ def print_test():
 
 
 print('Reading data...')
-df = pd.read_pickle('../../data/preprocessed_classified.pkl')
+df = pd.read_pickle('../../../data/preprocessed_classified.pkl')
 
 # für ohne confounds
 df['ohne_confounds'] = 0
