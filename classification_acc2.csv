@@ -1,0 +1,41 @@
+metric,confounds,preprocessing,acc,bottom,top
+label,ohne_confound,stemmed,0.98,0.99,0.97
+label,brand,lower,0.98,0.98,0.97
+label,category_id,stopped,0.98,0.99,0.97
+label,category_id,stemmed,0.98,0.99,0.96
+label,brand category_id,stopped,0.98,0.99,0.97
+label,brand category_id,tokens,0.98,0.98,0.97
+label,ohne_confound,stopped,0.98,0.98,0.97
+label,price category_id,stopped,0.98,0.98,0.97
+label,brand,stopped,0.98,0.98,0.97
+label,brand price category_id,stopped,0.98,0.99,0.97
+label,ohne_confound,tokens,0.98,0.98,0.98
+label,ohne_confound,lower,0.98,0.98,0.98
+label,price category_id,lower,0.97,0.97,0.96
+label,price category_id,stemmed,0.97,0.97,0.96
+label,brand category_id,stemmed,0.97,0.98,0.96
+label,brand price,tokens,0.97,0.98,0.95
+label,brand price category_id,lower,0.97,0.99,0.96
+label,brand price,no_punct,0.97,0.99,0.95
+label,brand price,lower,0.97,0.98,0.95
+label,brand price,stemmed,0.97,0.99,0.95
+label,price,stemmed,0.97,0.98,0.97
+label,brand,tokens,0.97,0.98,0.95
+label,category_id,no_punct,0.97,0.98,0.96
+label,ohne_confound,no_punct,0.97,0.98,0.97
+label,price,tokens,0.97,0.98,0.95
+label,brand,stemmed,0.97,0.98,0.97
+label,price,lower,0.97,0.98,0.96
+label,brand price category_id,stemmed,0.96,0.96,0.96
+label,price category_id,no_punct,0.96,0.97,0.93
+label,brand,no_punct,0.96,0.97,0.95
+label,category_id,tokens,0.96,0.97,0.95
+label,price,stopped,0.96,0.98,0.94
+label,brand category_id,no_punct,0.96,0.97,0.94
+label,brand category_id,lower,0.96,0.97,0.95
+label,price,no_punct,0.96,0.97,0.95
+label,price category_id,tokens,0.95,0.95,0.95
+label,brand price category_id,no_punct,0.95,0.95,0.96
+label,brand price category_id,tokens,0.94,0.94,0.95
+label,category_id,lower,0.91,0.99,0.8
+label,brand price,stopped,0.78,0.66,0.96

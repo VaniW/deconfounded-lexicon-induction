@@ -1,0 +1,46 @@
+metric,confounds,preprocessing,MAE,MSE,MSLE,MAPE
+mean_revenue,price,tokens,25.085802,9781.416,3.9879057,1.0839792
+mean_revenue,price category_id,stopped,24.139507,9370.8545,3.4347284,1.1297727
+mean_revenue,price,no_punct,25.210688,9791.48,4.1837473,1.2262905
+mean_revenue,brand,stemmed,23.938002,9502.482,3.0970106,1.2641455
+mean_revenue,brand price category_id,stemmed,24.038828,9503.934,2.3374038,1.5829585
+mean_revenue,brand price,stemmed,23.15499,9281.925,1.8435001,1.6871625
+mean_revenue,brand,tokens,23.282932,8898.62,2.7009063,1.7370358
+mean_revenue,brand price category_id,lower,23.157278,8936.206,2.5273647,1.8618983
+mean_revenue,brand price category_id,no_punct,24.212233,9286.722,2.4010057,1.9559759
+mean_revenue,brand price category_id,stopped,25.722904,9501.011,2.6166337,2.9802268
+mean_revenue,brand category_id,stopped,23.699137,8519.335,2.0424445,3.2054374
+mean_revenue,ohne_confound,stopped,23.595594,8243.055,1.7880749,3.7126925
+mean_revenue,brand,stopped,23.806303,8414.198,1.8119905,3.7229989
+mean_revenue,price,stopped,23.840038,8483.631,1.664729,3.7428815
+mean_revenue,category_id,stopped,23.821554,8220.951,1.8202202,3.8934817
+mean_revenue,brand category_id,stemmed,24.063364,8105.3413,1.7698145,3.926376
+mean_revenue,brand,no_punct,24.054747,8032.612,1.799162,3.9484963
+mean_revenue,category_id,stemmed,24.454021,8541.385,1.8446653,4.046715
+mean_revenue,category_id,no_punct,24.263844,7960.099,1.9960757,4.0504985
+mean_revenue,price,lower,24.191223,8151.462,1.8617266,4.083011
+mean_revenue,ohne_confound,lower,24.382624,8220.549,1.937824,4.0887012
+mean_revenue,brand price,tokens,24.328646,8260.142,1.8602363,4.0975595
+mean_revenue,brand price,stopped,24.334002,8109.3354,1.8393438,4.102306
+mean_revenue,ohne_confound,stemmed,24.372877,8393.13,1.8194232,4.1121798
+mean_revenue,category_id,lower,24.563152,8189.6885,1.9152144,4.1765304
+mean_revenue,brand price,stopped,27.70325,9371.995,3.2735837,4.1786003
+mean_revenue,category_id,tokens,24.04862,7796.753,1.9114519,4.19862
+mean_revenue,price,stemmed,24.782427,8346.343,1.8037623,4.198929
+mean_revenue,price category_id,stemmed,24.617016,8260.007,1.9014193,4.259219
+mean_revenue,brand price,no_punct,28.22955,9195.004,3.5403655,4.2903194
+mean_revenue,brand category_id,no_punct,24.613302,8049.161,2.0037398,4.3181562
+mean_revenue,price category_id,lower,24.733622,8167.2314,1.9230298,4.337842
+mean_revenue,brand price,stemmed,24.981092,8577.817,1.8584945,4.3505306
+mean_revenue,brand category_id,tokens,24.55525,8157.1323,1.8722066,4.3951135
+mean_revenue,price category_id,no_punct,25.024765,8063.5825,2.0072713,4.442279
+mean_revenue,brand price,tokens,24.692106,8105.241,1.9385304,4.4544835
+mean_revenue,brand price,lower,27.723764,9548.005,3.2458522,4.4595933
+mean_revenue,ohne_confound,tokens,25.19828,7883.31,2.0727413,4.4873514
+mean_revenue,ohne_confound,no_punct,25.194166,8076.2095,2.0414455,4.5314136
+mean_revenue,brand category_id,lower,24.95196,8169.8867,1.9783921,4.5635386
+mean_revenue,brand price,lower,25.213203,8017.875,1.9450957,4.664054
+mean_revenue,price category_id,tokens,25.032137,7843.5,2.0048025,4.680973
+mean_revenue,brand price,no_punct,25.374115,8239.102,1.9604156,4.864604
+mean_revenue,brand,lower,25.42192,8156.903,2.0347977,4.936998
+mean_revenue,brand price category_id,tokens,26.359762,8022.3955,2.125033,5.4456987

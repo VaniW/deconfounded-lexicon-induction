@@ -1,0 +1,81 @@
+metric,lstm,confounds,preprocessing,acc,bottom,normal,top
+label,False,price category_id,stopped,0.62,0.27,0.85,0.37
+label,True,brand price,no_punct,0.61,0.1,0.93,0.29
+label,False,ohne_confound,no_punct,0.61,0.22,0.85,0.41
+label,True,price,tokens,0.61,0.06,0.95,0.31
+label,True,price category_id,tokens,0.61,0.07,0.93,0.34
+label,False,price,lower,0.6,0.0,0.96,0.32
+label,False,brand category_id,stopped,0.6,0.23,0.83,0.38
+label,True,price category_id,stopped,0.6,0.09,0.94,0.27
+label,False,brand category_id,lower,0.6,0.0,0.96,0.32
+label,False,category_id,stopped,0.6,0.25,0.87,0.25
+label,False,brand price category_id,stopped,0.6,0.26,0.87,0.26
+label,True,price,stemmed,0.6,0.0,0.98,0.28
+label,False,price,stemmed,0.6,0.25,0.86,0.27
+label,True,brand price,lower,0.6,0.11,0.93,0.25
+label,False,brand,no_punct,0.6,0.0,0.94,0.34
+label,False,brand price category_id,tokens,0.6,0.28,0.84,0.28
+label,True,ohne_confound,lower,0.6,0.04,0.97,0.21
+label,True,price,lower,0.6,0.06,0.92,0.34
+label,False,brand price,tokens,0.59,0.24,0.87,0.19
+label,False,price category_id,lower,0.59,0.27,0.88,0.09
+label,False,brand category_id,tokens,0.59,0.08,0.87,0.42
+label,True,price,no_punct,0.59,0.0,0.97,0.24
+label,True,brand category_id,tokens,0.59,0.07,0.95,0.21
+label,True,brand,tokens,0.59,0.01,0.99,0.14
+label,False,price,stopped,0.59,0.0,0.98,0.18
+label,False,brand price,lower,0.59,0.27,0.82,0.33
+label,False,brand price,stopped,0.59,0.18,0.85,0.35
+label,True,brand price category_id,lower,0.59,0.1,0.94,0.22
+label,False,category_id,no_punct,0.59,0.27,0.82,0.31
+label,False,brand,stopped,0.59,0.0,0.97,0.23
+label,False,category_id,stemmed,0.59,0.24,0.83,0.32
+label,False,brand,tokens,0.59,0.09,0.92,0.29
+label,True,price,stopped,0.58,0.0,0.99,0.13
+label,False,brand,stemmed,0.58,0.0,0.94,0.27
+label,True,ohne_confound,stopped,0.58,0.02,0.93,0.26
+label,True,brand price,stemmed,0.58,0.08,0.92,0.18
+label,True,brand price category_id,stopped,0.58,0.01,0.97,0.12
+label,True,price category_id,stemmed,0.58,0.01,0.98,0.13
+label,False,price,no_punct,0.58,0.07,0.92,0.26
+label,True,brand price,tokens,0.58,0.01,0.97,0.13
+label,True,brand category_id,stemmed,0.58,0.06,0.92,0.26
+label,False,price category_id,no_punct,0.58,0.25,0.9,0.0
+label,False,price category_id,stemmed,0.58,0.21,0.91,0.03
+label,True,brand category_id,no_punct,0.58,0.11,0.9,0.24
+label,True,price category_id,no_punct,0.57,0.0,0.97,0.13
+label,True,category_id,no_punct,0.57,0.0,0.98,0.08
+label,True,category_id,lower,0.57,0.09,0.96,0.03
+label,True,brand price category_id,no_punct,0.57,0.1,0.91,0.18
+label,True,price category_id,lower,0.57,0.16,0.93,0.0
+label,True,ohne_confound,stemmed,0.57,0.0,1.0,0.0
+label,True,brand price category_id,tokens,0.57,0.06,0.97,0.0
+label,True,brand,no_punct,0.57,0.12,0.95,0.0
+label,False,brand price category_id,stemmed,0.57,0.25,0.78,0.35
+label,False,ohne_confound,lower,0.57,0.01,0.98,0.08
+label,False,brand,lower,0.57,0.03,0.99,0.0
+label,False,price,tokens,0.57,0.02,0.99,0.0
+label,False,category_id,lower,0.57,0.0,1.0,0.0
+label,False,category_id,tokens,0.57,0.31,0.82,0.17
+label,False,brand price,no_punct,0.57,0.0,0.99,0.03
+label,False,brand category_id,stemmed,0.57,0.0,1.0,0.0
+label,False,price category_id,tokens,0.57,0.15,0.92,0.09
+label,True,brand,stopped,0.57,0.0,1.0,0.0
+label,False,ohne_confound,stopped,0.57,0.0,1.0,0.0
+label,True,brand,stemmed,0.57,0.0,1.0,0.0
+label,True,brand price,stopped,0.56,0.0,0.99,0.01
+label,True,ohne_confound,tokens,0.56,0.21,0.89,0.04
+label,False,ohne_confound,tokens,0.56,0.22,0.83,0.21
+label,True,brand price category_id,stemmed,0.56,0.03,0.97,0.0
+label,True,category_id,stemmed,0.56,0.01,0.99,0.0
+label,True,ohne_confound,no_punct,0.56,0.07,0.96,0.0
+label,False,brand category_id,no_punct,0.56,0.18,0.87,0.11
+label,True,brand category_id,lower,0.56,0.08,0.89,0.23
+label,True,brand,lower,0.56,0.0,0.99,0.0
+label,False,ohne_confound,stemmed,0.56,0.04,0.98,0.0
+label,False,brand price,stemmed,0.55,0.1,0.85,0.23
+label,True,category_id,tokens,0.55,0.19,0.87,0.08
+label,False,brand price category_id,lower,0.55,0.33,0.81,0.01
+label,False,brand price category_id,no_punct,0.53,0.32,0.78,0.05
+label,True,brand category_id,stopped,0.52,0.33,0.65,0.4
+label,True,category_id,stopped,0.46,0.32,0.54,0.42

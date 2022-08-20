@@ -116,7 +116,7 @@ confounds = [
     {'price': 'control', 'category_id': 'control'},
     {'brand': 'control', 'price': 'control', 'category_id': 'control'},
 ]
-times = 1#20
+times = 5
 top = 50
 
 amount_top = df.groupby('label').count()['id']['top_seller']
@@ -233,7 +233,7 @@ for confound in confounds:
                     os.makedirs(path)
 
                 file = path + '/' + confound_names + '_' + key + '.csv'
-                with open(file, 'w') as f:
+                with open(file, 'w', encoding="utf-8") as f:
                     f.write("%s; %s\n" % ('Wort', 'Durchschnittlicher Wert'))
                     for k in scores_tot[key].keys():
                         f.write("%s; %s\n" % (k, scores_tot[key][k]))

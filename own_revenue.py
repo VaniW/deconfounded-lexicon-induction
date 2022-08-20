@@ -101,7 +101,7 @@ confounds = [
     {'brand': 'control', 'price': 'control', 'category_id': 'control'}
 ]
 col = columns[0]
-times = 1#20
+times = 5
 top = 50
 
 df_errors = pd.DataFrame([], columns=['metric', 'confounds', 'preprocessing', 'MAE', 'MSE', 'MSLE', 'MAPE'])
@@ -207,7 +207,7 @@ for confound in confounds:
                 os.makedirs(path)
 
             file = path + '/' + confound_names + '.csv'
-            with open(file, 'w') as f:
+            with open(file, 'w', encoding="utf-8") as f:
                 f.write("%s; %s\n" % ('Wort', 'Durchschnittlicher Wert'))
                 for key in scores_tot.keys():
                     f.write("%s; %s\n" % (key, scores_tot[key]))

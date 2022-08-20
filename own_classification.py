@@ -114,7 +114,7 @@ confounds = [
     {'price': 'control', 'category_id': 'control'},
     {'brand': 'control', 'price': 'control', 'category_id': 'control'},
 ]
-times = 1#20
+times = 5
 top = 50
 
 amount_top = df.groupby('label').count()['id']['top_seller']
