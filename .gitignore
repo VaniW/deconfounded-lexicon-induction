@@ -102,3 +102,13 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# data
+csvs/
+cms/
+errors/
+backup2/
+backup_cms/
+backup_results/
+*.pkl
+*.csv
