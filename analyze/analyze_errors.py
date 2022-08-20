@@ -1,7 +1,7 @@
 import pandas as pd
 import glob
 
-df = pd.read_pickle("errors.pkl")
+df = pd.read_pickle("../errors.pkl")
 pd.set_option('display.max_columns', None)
 print(df.sort_values('MAPE', ascending=True))
 
