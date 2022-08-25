@@ -148,7 +148,7 @@ for confound in confounds:
                     scoring_model='adversarial',
                     batch_size=16,
                     train_steps=255,
-                    max_seq_len=700)
+                    max_seq_len=640)
 
                 print(f"Scores für {i}")
                 score_list = scores[measure]['N/A']
